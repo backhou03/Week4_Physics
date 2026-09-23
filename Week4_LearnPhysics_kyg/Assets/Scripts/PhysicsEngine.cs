@@ -8,27 +8,74 @@ public class PhysicsEngine : MonoBehaviour
     public List<Vector3> forceVectorList = new List<Vector3>();
     // 여러개의 힘들을 합칠 리스트 생성
 
+    private void Start()
+    {
+        SetupThrustTrails();
+    }
     void FixedUpdate()
     {
-        AddForces();
-        UpdateVelocity();
 
-
-        transform.position += velocityVector * Time.deltaTime;
+        UpdatePosition();
+        RenderTrails();
 
 
     }
-    void AddForces()
+    public void AddForce(Vector3 forceVector)
+    {
+        forceVectorList.Add(forceVector);
+    }
+
+    void UpdatePosition()
     {
         netForceVector = Vector3.zero;
         foreach (Vector3 forceVector in forceVectorList) //리스트안의 힘들을 가져옴
         {
             netForceVector = netForceVector + forceVector; //힘들을 합침
         }
-    }
-    void UpdateVelocity()
-    {
+        forceVectorList = new List<Vector3>();
         Vector3 accelerationVector = netForceVector / mass; //F=ma 의 공식을 이용하여 a = f/m
         velocityVector += accelerationVector * Time.deltaTime; // 계산한값을 속도에 적용
+        transform.position += velocityVector * Time.deltaTime;
+    }
+
+    public bool showTrails = true;
+
+
+    private LineRenderer lineRenderer;
+    private int numberOfForces;
+
+    // Use this for initialization
+    void SetupThrustTrails()
+    {
+
+
+        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.SetColors(Color.yellow, Color.yellow);
+        lineRenderer.SetWidth(0.2F, 0.2F);
+        lineRenderer.useWorldSpace = false;
+    }
+
+    // Update is called once per frame
+    void RenderTrails()
+    {
+        if (showTrails)
+        {
+            lineRenderer.enabled = true;
+            numberOfForces = forceVectorList.Count;
+            lineRenderer.SetVertexCount(numberOfForces * 2);
+            int i = 0;
+            foreach (Vector3 forceVector in forceVectorList)
+            {
+                lineRenderer.SetPosition(i, Vector3.zero);
+                lineRenderer.SetPosition(i + 1, -forceVector);
+                i = i + 2;
+            }
+        }
+        else
+        {
+            lineRenderer.enabled = false;
+        }
+        //}
     }
 }
