@@ -23,7 +23,6 @@ public class RocketEngine : MonoBehaviour
         {
             fuelMass -= FuelThisUpdate();
             physicsEngine.mass -= FuelThisUpdate();
-            physicsEngine.AddForce(thrustUnitVector);
             ExtertForce();
         }
         else
